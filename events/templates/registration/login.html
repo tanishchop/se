@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - College Events</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100vh; display: flex; align-items: center; justify-content: center; color: #333; }
+        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 350px; text-align: center; animation: slideIn 0.5s ease-out; }
+        .login-container h2 { margin-bottom: 30px; color: #2c3e50; }
+        form { display: flex; flex-direction: column; }
+        input[type="text"], input[type="password"] { padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
+        input[type="text"]:focus, input[type="password"]:focus { outline: none; border-color: #667eea; }
+        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; margin-bottom: 10px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
+        .errorlist { color: #e74c3c; list-style: none; padding: 0; margin: 10px 0; }
+        .errorlist li { background: #fdf2f2; border: 1px solid #e74c3c; padding: 8px; border-radius: 3px; margin-bottom: 5px; }
+        .link { color: #667eea; text-decoration: none; margin-top: 10px; display: inline-block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group { position: relative; margin-bottom: 15px; }
+        label { position: absolute; top: 12px; left: 12px; color: #999; transition: all 0.3s; font-size: 16px; pointer-events: none; }
+        input:focus + label, input:valid + label { top: -10px; left: 8px; font-size: 12px; color: #667eea; background: white; padding: 0 5px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login to College Events</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="username" id="username" required>
+                <label for="username">Username</label>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="password" required>
+                <label for="password">Password</label>
+            </div>
+            {% if form.errors %}
+                <ul class="errorlist">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <button type="submit">Login</button>
+        </form>
+        <a href="/admin/password_reset/" class="link">Forgot Password?</a>
+    </div>
+
+    <script>
+        // Basic form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                e.preventDefault();
+                alert('Please fill in all fields.');
+                return false;
+            }
+        });
+
+        // Add shake animation on error (optional)
+        {% if form.errors %}
+            document.querySelector('.login-container').style.animation = 'shake 0.5s';
+        {% endif %}
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

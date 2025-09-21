@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ event.name }} - College Events</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        .event-info { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .event-name { font-size: 2em; margin: 0 0 10px; }
+        .event-date, .event-location, .event-desc { margin-bottom: 10px; }
+        .event-location { font-weight: bold; }
+        .schedules-section { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .schedules-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .schedules-table th, .schedules-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .schedules-table th { background: #f8f9fa; }
+        .schedule-time { font-weight: bold; color: #27ae60; }
+        .btn { background: #3498db; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s, transform 0.2s; text-decoration: none; display: inline-block; margin: 5px; }
+        .btn:hover { background: #2980b9; transform: scale(1.05); }
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #229954; }
+        .btn-warning { background: #f39c12; }
+        .btn-warning:hover { background: #e67e22; }
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-add { background: #9b59b6; margin-bottom: 20px; }
+        .btn-add:hover { background: #8e44ad; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); animation: slideIn 0.3s; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        form { display: flex; flex-direction: column; }
+        input, textarea, select { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .schedule-card { background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px; transition: box-shadow 0.3s; }
+        .schedule-card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'events:event_list' %}" class="btn">Back to Events</a>
+        <div class="event-info">
+            <h1 class="event-name">{{ event.name }}</h1>
+            <p class="event-date"><strong>Date:</strong> {{ event.date|date:"F d, Y" }}</p>
+            <p class="event-location"><strong>Location:</strong> {{ event.location }}</p>
+            <p class="event-desc"><strong>Description:</strong> {{ event.description }}</p>
+            {% if can_edit %}
+            <button class="btn btn-add" onclick="openModal('create')">Add Schedule</button>
+            {% endif %}
+        </div>
+        <div class="schedules-section">
+            <h2>Schedules</h2>
+            <div id="schedules-container">
+                {% if schedules %}
+                <table class="schedules-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Time</th>
+                            <th>Description</th>
+                            {% if can_edit %}<th>Actions</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                        <tr>
+                            <td>{{ schedule.title }}</td>
+                            <td class="schedule-time">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</td>
+                            <td>{{ schedule.description|truncatewords:15 }}</td>
+                            {% if can_edit %}
+                            <td>
+                                <button class="btn btn-warning" onclick="openEditModal({{ schedule.id }})" style="padding: 5px 10px; font-size: 12px;">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteSchedule({{ schedule.id }})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No schedules yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h2 id="modalTitle">Add Schedule</h2>
+            <form id="scheduleForm">
+                {% csrf_token %}
+                <input type="hidden" id="scheduleId" name="id">
+                <input type="text" id="title" name="title" placeholder="Schedule Title" required>
+                <input type="time" id="start_time" name="start_time" required>
+                <input type="time" id="end_time" name="end_time" required>
+                <textarea id="description" name="description" placeholder="Description" rows="3"></textarea>
+                <button type="submit" class="btn btn-success">Save</button>
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const eventId = {{ event.id }};
+        const modal = document.getElementById('scheduleModal');
+        const form = document.getElementById('scheduleForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const scheduleIdInput = document.getElementById('scheduleId');
+
+        function openModal(action, id = null) {
+            modal.style.display = 'block';
+            if (action === 'create') {
+                modalTitle.textContent = 'Add Schedule';
+                scheduleIdInput.value = '';
+                form.action = `/event/${eventId}/schedule/new/`;
+                form.method = 'POST';
+            } else if (action === 'edit') {
+                modalTitle.textContent = 'Edit Schedule';
+                scheduleIdInput.value = id;
+                form.action = `/schedule/${id}/update/`;
+                form.method = 'POST';
+                // Populate form if needed, but for simplicity, assume fetch or pre-load
+                fetch(`{% url 'events:schedule_update' 0 %}`.replace('0', id), {method: 'GET'}).then(res => res.json()).then(data => {
+                    document.getElementById('title').value = data.title || '';
+                    document.getElementById('start_time').value = data.start_time || '';
+                    document.getElementById('end_time').value = data.end_time || '';
+                    document.getElementById('description').value = data.description || '';
+                }).catch(err => console.error('Error fetching schedule'));
+            }
+        }
+
+        function openEditModal(id) {
+            openModal('edit', id);
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            form.reset();
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const actionUrl = form.action;
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else if (data.success) {
+                    location.reload(); // Reload to update list
+                } else {
+                    // Add or update in DOM
+                    location.reload();
+                }
+                closeModal();
+            })
+            .catch(err => console.error('Error:', err));
+        });
+
+        function deleteSchedule(id) {
+            if (confirm('Are you sure?')) {
+                fetch(`/schedule/${id}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting schedule');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+    </script>
+</body>
+</html>

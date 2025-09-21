@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Events</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .event-card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .event-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; }
+        .card-body { padding: 15px; }
+        .event-name { font-size: 1.2em; margin: 0 0 10px; }
+        .event-date { color: #7f8c8d; margin-bottom: 5px; }
+        .event-location { font-weight: bold; }
+        .btn { background: #3498db; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #2980b9; }
+        .btn-details { background: #27ae60; }
+        .btn-details:hover { background: #229954; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upcoming College Events</h1>
+        <div class="events-grid" id="events-grid">
+            {% for event in events %}
+            <div class="event-card">
+                <div class="card-header">
+                    <h3 class="event-name">{{ event.name }}</h3>
+                    <p class="event-date">{{ event.date|date:"F d, Y" }}</p>
+                </div>
+                <div class="card-body">
+                    <p>{{ event.description|truncatewords:20 }}</p>
+                    <p class="event-location"><strong>Location:</strong> {{ event.location }}</p>
+                    <a href="{% url 'events:event_detail' event.id %}" class="btn btn-details">View Details</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No events available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
