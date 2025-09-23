@@ -25,6 +25,17 @@
 <body>
     <div class="container">
         <h1>Upcoming College Events</h1>
+        <div style="text-align:right; margin-bottom:20px;">
+            {% if user.is_authenticated %}
+                <span>Welcome, {{ user.username }}!</span>
+                <form method="post" action="{% url 'logout' %}" style="display:inline; margin-left:10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn">Login</a>
+            {% endif %}
+        </div>
         <div class="events-grid" id="events-grid">
             {% for event in events %}
             <div class="event-card">

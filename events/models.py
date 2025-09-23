@@ -20,6 +20,7 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
 class Schedule(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='schedules')
     title = models.CharField(max_length=100)
@@ -30,3 +31,19 @@ class Schedule(models.Model):
 
     def __str__(self):
         return f'{self.title} - {self.event.name}'
+
+
+# Slot model for each schedule
+class Slot(models.Model):
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, related_name='slots')
+    capacity = models.PositiveIntegerField(default=1)
+    registered_users = models.ManyToManyField(User, blank=True, related_name='registered_slots')
+
+    def __str__(self):
+        return f'Slot for {self.schedule.title}'
+
+    def is_full(self):
+        return self.registered_users.count() >= self.capacity
+
+    def remaining(self):
+        return self.capacity - self.registered_users.count()

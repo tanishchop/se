@@ -1,78 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - College Events</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100vh; display: flex; align-items: center; justify-content: center; color: #333; }
-        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 350px; text-align: center; animation: slideIn 0.5s ease-out; }
-        .login-container h2 { margin-bottom: 30px; color: #2c3e50; }
-        form { display: flex; flex-direction: column; }
-        input[type="text"], input[type="password"] { padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
-        input[type="text"]:focus, input[type="password"]:focus { outline: none; border-color: #667eea; }
-        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; margin-bottom: 10px; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
-        .errorlist { color: #e74c3c; list-style: none; padding: 0; margin: 10px 0; }
-        .errorlist li { background: #fdf2f2; border: 1px solid #e74c3c; padding: 8px; border-radius: 3px; margin-bottom: 5px; }
-        .link { color: #667eea; text-decoration: none; margin-top: 10px; display: inline-block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        .form-group { position: relative; margin-bottom: 15px; }
-        label { position: absolute; top: 12px; left: 12px; color: #999; transition: all 0.3s; font-size: 16px; pointer-events: none; }
-        input:focus + label, input:valid + label { top: -10px; left: 8px; font-size: 12px; color: #667eea; background: white; padding: 0 5px; }
+        /* Page background and container */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 380px;
+            text-align: center;
+            animation: slideIn 0.45s ease-out;
+        }
+
+        .login-container h2 {
+            margin-bottom: 26px;
+            color: #2c3e50;
+            font-size: 22px;
+            letter-spacing: 0.2px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        /* Inputs */
+        input[type="text"],
+        input[type="password"] {
+            padding: 14px 12px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: #fff;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.08);
+        }
+
+        /* Floating label (label is placed after input in DOM) */
+        .form-group label {
+            position: absolute;
+            top: 14px;
+            left: 12px;
+            color: #9aa2ad;
+            transition: all 0.22s ease;
+            font-size: 15px;
+            pointer-events: none;
+            background: transparent;
+            padding: 0 4px;
+        }
+
+        /* when input is focused or has content, raise label */
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            top: -10px;
+            left: 8px;
+            font-size: 12px;
+            color: #667eea;
+            background: white;
+        }
+
+        /* Button */
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            margin-top: 6px;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102,126,234,0.24);
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            margin-top: 12px;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        /* Error list */
+        .errorlist {
+            color: #e74c3c;
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+            text-align: left;
+        }
+
+        .errorlist li {
+            background: #fdf2f2;
+            border: 1px solid #e74c3c;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+            80% { transform: translateX(-3px); }
+        }
+
+        .shake {
+            animation: shake 0.45s;
+        }
+
+        /* Small desktop-only width clamp (you said desktop) */
+        @media (max-width: 720px) {
+            /* keep reasonable but avoid full mobile styling */
+            .login-container { width: 320px; }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <!-- Add data-has-errors attribute to avoid template logic inside script -->
+    <div class="login-container" id="loginBox" data-has-errors="{% if form and form.errors %}1{% else %}0{% endif %}">
         <h2>Login to College Events</h2>
-        <form method="post">
+
+        <!--
+            Note: make sure your Django view sends `form` in context.
+            Typically, Django's AuthenticationForm or a custom form works fine.
+        -->
+        <form method="post" novalidate>
             {% csrf_token %}
+
+            <!-- Username field -->
             <div class="form-group">
-                <input type="text" name="username" id="username" required>
+                <!-- add placeholder (not visible once filled) so :placeholder-shown works -->
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    autocomplete="username"
+                    required
+                    minlength="3"
+                    placeholder=" "
+                    value="{% if form and form.username.value %}{{ form.username.value }}{% endif %}"
+                />
                 <label for="username">Username</label>
             </div>
+
+            <!-- Password field -->
             <div class="form-group">
-                <input type="password" name="password" id="password" required>
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    autocomplete="current-password"
+                    required
+                    minlength="4"
+                    placeholder=" "
+                />
                 <label for="password">Password</label>
             </div>
-            {% if form.errors %}
-                <ul class="errorlist">
+
+            <!-- Error listing (safely only if form exists) -->
+            {% if form and form.errors %}
+                <ul class="errorlist" id="formErrors">
+                    {# Field-specific errors #}
                     {% for field in form %}
                         {% for error in field.errors %}
                             <li>{{ error }}</li>
                         {% endfor %}
                     {% endfor %}
+                    {# Non-field errors #}
                     {% for error in form.non_field_errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
+
             <button type="submit">Login</button>
         </form>
-        <a href="/admin/password_reset/" class="link">Forgot Password?</a>
+
+    <a href="{% url 'password_reset' %}" class="link">Forgot Password?</a>
+    <br>
+    <a href="{% url 'events:register' %}" class="link">Don't have an account? Register</a>
     </div>
 
     <script>
-        // Basic form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            if (!username || !password) {
-                e.preventDefault();
-                alert('Please fill in all fields.');
-                return false;
-            }
-        });
+        // Client-side: basic validation + improved error-shake behavior.
+        (function () {
+            const form = document.querySelector('form');
+            const loginBox = document.getElementById('loginBox');
 
-        // Add shake animation on error (optional)
-        {% if form.errors %}
-            document.querySelector('.login-container').style.animation = 'shake 0.5s';
-        {% endif %}
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        `;
-        document.head.appendChild(style);
+            // Prevent submission if empty (extra safety)
+            form.addEventListener('submit', function (e) {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                if (!username || !password) {
+                    e.preventDefault();
+                    // show a native-ish message and shake
+                    if (!document.getElementById('clientError')) {
+                        const el = document.createElement('ul');
+                        el.id = 'clientError';
+                        el.className = 'errorlist';
+                        el.innerHTML = '<li>Please fill in both username and password.</li>';
+                        form.insertBefore(el, form.querySelector('button'));
+                    }
+                    loginBox.classList.remove('shake');            // restart animation
+                    // small timeout to reflow before re-adding class
+                    void loginBox.offsetWidth;
+                    loginBox.classList.add('shake');
+                    return false;
+                }
+                // Let server-side handle authentication; no further client-side logic here.
+            });
+
+            // Read the data-attribute set server-side instead of embedding template tags here.
+            const hasErrors = loginBox.getAttribute('data-has-errors') === '1';
+            if (hasErrors) {
+                // Play the shake to draw attention, and focus username.
+                setTimeout(function () {
+                    loginBox.classList.remove('shake');
+                    void loginBox.offsetWidth;
+                    loginBox.classList.add('shake');
+                    const firstErrorInput = document.querySelector('.errorlist') ? document.getElementById('username') : null;
+                    if (firstErrorInput) firstErrorInput.focus();
+                }, 20);
+            }
+        })();
     </script>
 </body>
 </html>

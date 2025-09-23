@@ -9,4 +9,8 @@ urlpatterns = [
     path('event/<int:event_id>/schedule/new/', views.schedule_create, name='schedule_create'),
     path('schedule/<int:schedule_id>/update/', views.schedule_update, name='schedule_update'),
     path('schedule/<int:schedule_id>/delete/', views.schedule_delete, name='schedule_delete'),
+    path('register/', views.register, name='register'),
+    path('event/<int:event_id>/register/', views.event_register, name='event_register'),
+    # Slot registration (user can only register for one slot per schedule)
+    path('slot/<int:slot_id>/register/', views.slot_register, name='slot_register'),
 ]

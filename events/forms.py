@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from .models import Schedule
 
 class ScheduleForm(forms.ModelForm):
@@ -18,6 +20,7 @@ class ScheduleForm(forms.ModelForm):
         if event:
             self.instance.event = event
 
+
     def clean(self):
         cleaned_data = super().clean()
         start_time = cleaned_data.get('start_time')
@@ -25,3 +28,19 @@ class ScheduleForm(forms.ModelForm):
         if start_time and end_time and start_time >= end_time:
             raise forms.ValidationError('End time must be after start time.')
         return cleaned_data
+
+
+# Registration form using Django's built-in UserCreationForm
+class RegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "password1", "password2")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user

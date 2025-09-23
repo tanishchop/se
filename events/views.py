@@ -1,10 +1,48 @@
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
-from .models import Event, Schedule
-from .forms import ScheduleForm
+
+from .models import Event, Schedule, Slot
+from .forms import ScheduleForm, RegisterForm
+
+@login_required
+@require_POST
+def event_register(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.user in event.registered_users.all():
+        return JsonResponse({'error': 'Already registered.'}, status=400)
+    event.registered_users.add(request.user)
+    return JsonResponse({'success': True})
+
+
+
+# Slot registration view (user can only register for one slot per schedule)
+@login_required
+@require_POST
+def slot_register(request, slot_id):
+    slot = get_object_or_404(Slot, id=slot_id)
+    schedule = slot.schedule
+    # Check if user already registered for any slot in this schedule
+    for s in schedule.slots.all():
+        if request.user in s.registered_users.all():
+            return JsonResponse({'error': 'Already registered for a slot in this schedule.'}, status=400)
+    if slot.is_full():
+        return JsonResponse({'error': 'This slot is full.'}, status=400)
+    slot.registered_users.add(request.user)
+    return JsonResponse({'success': True})
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Registration successful. You can now log in.')
+            return redirect('login')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 @login_required
 def event_list(request):
