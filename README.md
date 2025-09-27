@@ -1,12 +1,13 @@
 # College Event Management System
 
-## DevOps Tools Used: Git & Jenkins
+
+## DevOps Tools Used: Git & Docker
 
 This project demonstrates the use of two DevOps tools:
 
 **Git**: Used for version control. All source code changes are tracked, committed, and pushed to a remote repository. Collaboration and code history are managed using Git commands (`add`, `commit`, `push`, etc.).
 
-**Jenkins**: Used for Continuous Integration/Continuous Deployment (CI/CD). The included `Jenkinsfile` automates the build, test, and deployment pipeline. Jenkins pulls the latest code from Git, installs dependencies, runs migrations and tests, and can deploy the application automatically. This ensures code quality and streamlines deployment.
+**Docker**: Used for containerization. Docker packages the application and its dependencies into a single container, ensuring consistent setup and deployment across different environments.
 
 See below for setup details for both tools.
 
@@ -78,64 +79,35 @@ The project is already initialized with Git. To use it:
    git push
    ```
 
-## Jenkins CI/CD Setup
 
-This setup assumes you have Jenkins installed and a Git repository hosted (e.g., GitHub).
+## Docker Setup
 
-1. **Install Jenkins Plugins**:
-   - Git Plugin
-   - Pipeline Plugin
-   - Django Plugin (optional)
-   - Warnings Next Generation (for reports)
+### What is Docker?
 
-2. **Create Jenkinsfile** in the project root (add this file to your repo):
-   ```groovy
-   pipeline {
-       agent any
-       stages {
-           stage('Checkout') {
-               steps {
-                   git branch: 'main', url: '<your-repo-url>'
-               }
-           }
-           stage('Install Dependencies') {
-               steps {
-                   bat 'venv\Scripts\activate && pip install -r requirements.txt'
-               }
-           }
-           stage('Run Migrations') {
-               steps {
-                   bat 'venv\Scripts\activate && python manage.py migrate'
-               }
-           }
-           stage('Run Tests') {
-               steps {
-                   bat 'venv\Scripts\activate && python manage.py test'
-               }
-           }
-           stage('Deploy') {
-               steps {
-                   // Add deployment steps, e.g., copy to server, restart service
-                   echo 'Deployment successful'
-               }
-           }
-       }
-       post {
-           always {
-               bat 'venv\Scripts\activate && python manage.py collectstatic --noinput'
-           }
-       }
-   }
+Docker is a platform that allows you to package your application and its dependencies into a single container. This container can run on any system with Docker installed, ensuring consistency across different environments.
+
+### Use of Docker in This Project
+
+In this project, Docker is used to:
+- Simplify setup and deployment by packaging the Django app and its dependencies.
+- Ensure the application runs the same way on any computer or server.
+- Make it easy to share, test, and deploy the project without manual installation of Python or dependencies.
+
+With Docker, you can build and run the app using just a few commands, without worrying about environment issues.
+
+### How to Use Docker
+
+1. **Build the Docker image**
+   ```bash
+   docker build -t se-app .
    ```
-   (Adjust for Linux/macOS with `sh` instead of `bat` if needed.)
 
-3. **Configure Jenkins Job**:
-   - Create a new Pipeline job.
-   - Set Repository URL to your Git repo.
-   - Script Path: `Jenkinsfile`.
-   - Trigger on push to main branch.
+2. **Run the Docker container**
+   ```bash
+   docker run -p 8000:8000 se-app
+   ```
 
-4. **Deployment**: Customize the 'Deploy' stage for your hosting (e.g., Heroku, VPS). Ensure environment variables for secrets.
+This will start the Django development server inside the container, accessible at `http://localhost:8000`.
 
 ## Additional Notes
 - CSRF protection and form validation are integrated via Django forms.
